@@ -3,7 +3,6 @@ import { AuthPage } from "../pages";
 import AppRoutes, { type IRoute } from "./routes";
 import { ProtectedRoute } from "./ProtectedRoute";
 import React from "react";
-React.useTransition
 
 const getRouteElement = (route: IRoute) => {
   if (!route.Component) return <Navigate to="/" replace />;
@@ -16,21 +15,36 @@ const getRouteElement = (route: IRoute) => {
   );
 };
 
+const renderRoutes = (routes: IRoute[]) => {
+  return routes.map((route) => {
+    if (route.children) {
+      return (
+        <Route
+          key={route.path || "index"}
+          path={route.path}
+          element={getRouteElement(route)}
+        >
+          {renderRoutes(route.children)}
+        </Route>
+      );
+    }
+    return (
+      <Route
+        index={!!route.index}
+        key={route.path || "index"}
+        path={route.path}
+        element={getRouteElement(route)}
+      />
+    );
+  });
+};
+
 export const AppRouter: React.FC = () => {
   return (
     <Routes>
       <Route path="/login" element={<AuthPage />} />
       <Route path="/register" element={<AuthPage />} />
-      {AppRoutes.map((route) => {
-        return (
-          <Route
-            index={!!route.index}
-            key={route.path || "index"}
-            path={route.path}
-            element={getRouteElement(route)}
-          />
-        );
-      })}
+      {renderRoutes(AppRoutes)}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

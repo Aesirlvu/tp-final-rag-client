@@ -9,9 +9,6 @@ import {
 } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Progress } from "../components/ui/progress";
-import DataTable from "../components/shared/DataTable";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
-import type { PlayerData } from "./DataTablePage";
 
 const DashboardPage = () => {
   const { setBreadcrumbs } = useBreadcrumbs();

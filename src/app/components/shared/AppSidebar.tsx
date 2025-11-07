@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
 } from "@/app/components/ui/sidebar";
 import { useNavigateTo } from "@/hooks/use-navigate";
-import { Calendar, Home, Inbox, Box, Table, GitGraph } from "lucide-react";
+import { Calendar, Home, Inbox, Box, Table, GitGraph, CalendarDays, AppWindow } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 interface SidebarItem {
@@ -50,6 +50,16 @@ const items: SidebarItem[] = [
     title: "Visualizador",
     url: "/visualizer",
     icon: GitGraph,
+  },
+  {
+    title: "Turnos",
+    url: "/appointments",
+    icon: CalendarDays,
+  },
+  {
+    title: "Documentos",
+    url: "/sources/viewer",
+    icon: AppWindow,
   },
 ];
 
