@@ -178,7 +178,13 @@ export const useAllVectorsFor3D = (selectedNamespace?: string) => {
     queryKey: ["all-vectors-3d", selectedNamespace],
     queryFn: async () => {
       const startTime = Date.now();
-      logger.debug(`Starting fetch of sample vectors for 3D visualization${selectedNamespace ? ` (namespace: ${selectedNamespace})` : ' (all namespaces)'}`);
+      logger.debug(
+        `Starting fetch of sample vectors for 3D visualization${
+          selectedNamespace
+            ? ` (namespace: ${selectedNamespace})`
+            : " (all namespaces)"
+        }`
+      );
 
       try {
         // 1. Obtener todos los namespaces o usar el seleccionado
@@ -196,8 +202,10 @@ export const useAllVectorsFor3D = (selectedNamespace?: string) => {
         // Limitar a máximo 3 namespaces para evitar sobrecarga
         const maxNamespaces = 3;
         const namespacesToProcess = namespaces.slice(0, maxNamespaces);
-        
-        logger.debug(`Limited to ${namespacesToProcess.length} namespaces (from ${namespaces.length} total)`);
+
+        logger.debug(
+          `Limited to ${namespacesToProcess.length} namespaces (from ${namespaces.length} total)`
+        );
 
         let allVectors: number[][] = [];
         let totalSampledVectors = 0;
@@ -210,12 +218,14 @@ export const useAllVectorsFor3D = (selectedNamespace?: string) => {
           try {
             // Usar queryIndex con un vector dummy para obtener vectores reales
             // Esto funciona mejor que listVectors + fetchVectors para evitar problemas CORS
-            logger.debug(`Querying ${maxVectorsPerNamespace} vectors from namespace: ${namespace}`);
+            logger.debug(
+              `Querying ${maxVectorsPerNamespace} vectors from namespace: ${namespace}`
+            );
             const queryStartTime = Date.now();
-            
+
             // Crear un vector dummy de ceros (1024 dimensiones para Jina embeddings)
             const dummyVector = new Array(1024).fill(0);
-            
+
             const queryResponse = await ClientRetrieverService.queryIndex(
               namespace,
               dummyVector,
@@ -223,13 +233,17 @@ export const useAllVectorsFor3D = (selectedNamespace?: string) => {
               undefined,
               true // includeValues = true para obtener los vectores completos
             );
-            
-            logger.debug(`Query completed for ${namespace} in ${Date.now() - queryStartTime}ms`);
+
+            logger.debug(
+              `Query completed for ${namespace} in ${
+                Date.now() - queryStartTime
+              }ms`
+            );
 
             const queryData = queryResponse.data as any;
-            logger.debug(`Query response for ${namespace}:`, { 
-              hasMatches: !!queryData.matches, 
-              matchesCount: queryData.matches?.length || 0 
+            logger.debug(`Query response for ${namespace}:`, {
+              hasMatches: !!queryData.matches,
+              matchesCount: queryData.matches?.length || 0,
             });
 
             if (!queryData.matches || queryData.matches.length === 0) {
@@ -245,9 +259,14 @@ export const useAllVectorsFor3D = (selectedNamespace?: string) => {
             allVectors.push(...vectors);
             totalSampledVectors += vectors.length;
 
-            logger.debug(`Namespace ${namespace}: sampled ${vectors.length} vectors`);
+            logger.debug(
+              `Namespace ${namespace}: sampled ${vectors.length} vectors`
+            );
           } catch (error) {
-            logger.error(`Error fetching vectors for namespace ${namespace}`, error);
+            logger.error(
+              `Error fetching vectors for namespace ${namespace}`,
+              error
+            );
             // Continue with other namespaces instead of failing completely
           }
         }
@@ -260,7 +279,7 @@ export const useAllVectorsFor3D = (selectedNamespace?: string) => {
           totalSampledVectors,
           namespacesCount: namespacesToProcess.length,
           maxVectorsPerNamespace,
-          selectedNamespace
+          selectedNamespace,
         };
       } catch (error) {
         logger.error("Error in useAllVectorsFor3D", error);
@@ -275,7 +294,7 @@ export const useAllVectorsFor3D = (selectedNamespace?: string) => {
 };
 
 // Utilidad para delay entre requests
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Hook paginado para obtener vectores en chunks usando list() + fetch()
 export const useAllVectorsFor3DPaginated = (selectedNamespace?: string) => {
@@ -285,8 +304,10 @@ export const useAllVectorsFor3DPaginated = (selectedNamespace?: string) => {
       const startTime = Date.now();
       const LIST_LIMIT = 100; // IDs por página
       const REQUEST_DELAY_MS = 300;
-      
-      logger.debug(`📊 Fetching page with cursor: ${pageParam?.cursor || 'initial'}`);
+
+      logger.debug(
+        `📊 Fetching page with cursor: ${pageParam?.cursor || "initial"}`
+      );
 
       // Delay estratégico
       if (pageParam?.cursor) {
@@ -299,15 +320,17 @@ export const useAllVectorsFor3DPaginated = (selectedNamespace?: string) => {
         if (selectedNamespace) {
           namespaces = [selectedNamespace];
         } else {
-          const namespacesResponse = await ClientRetrieverService.listNamespaces();
-          const namespacesData = namespacesResponse.data as PineconeNamespacesResponse;
+          const namespacesResponse =
+            await ClientRetrieverService.listNamespaces();
+          const namespacesData =
+            namespacesResponse.data as PineconeNamespacesResponse;
           namespaces = namespacesData.namespaces.map((ns) => ns.name);
         }
 
         // Rotar entre namespaces si hay múltiples
         const currentNamespaceIndex = pageParam?.namespaceIndex || 0;
         const namespace = namespaces[currentNamespaceIndex];
-        
+
         logger.debug(`🔍 Listing vectors from namespace: ${namespace}`);
 
         // 2. Listar IDs de vectores con paginación
@@ -318,13 +341,15 @@ export const useAllVectorsFor3DPaginated = (selectedNamespace?: string) => {
         );
 
         const listData = listResponse.data as any;
-        
+
         if (!listData.vectors || listData.vectors.length === 0) {
           // Si no hay más vectores en este namespace, pasar al siguiente
           const nextNamespaceIndex = currentNamespaceIndex + 1;
-          
+
           if (nextNamespaceIndex < namespaces.length) {
-            logger.debug(`✅ Moving to next namespace: ${namespaces[nextNamespaceIndex]}`);
+            logger.debug(
+              `✅ Moving to next namespace: ${namespaces[nextNamespaceIndex]}`
+            );
             return {
               vectors: [],
               totalSampledVectors: 0,
@@ -332,7 +357,7 @@ export const useAllVectorsFor3DPaginated = (selectedNamespace?: string) => {
               nextCursor: null,
               nextNamespaceIndex,
               namespace,
-              namespacesCount: namespaces.length
+              namespacesCount: namespaces.length,
             };
           } else {
             logger.debug(`🏁 No more namespaces to process`);
@@ -343,7 +368,7 @@ export const useAllVectorsFor3DPaginated = (selectedNamespace?: string) => {
               nextCursor: null,
               nextNamespaceIndex: currentNamespaceIndex,
               namespace,
-              namespacesCount: namespaces.length
+              namespacesCount: namespaces.length,
             };
           }
         }
@@ -359,7 +384,7 @@ export const useAllVectorsFor3DPaginated = (selectedNamespace?: string) => {
         );
 
         const fetchData = fetchResponse.data as any;
-        
+
         // 5. Extraer valores de los vectores
         const vectors: number[][] = [];
         if (fetchData.vectors) {
@@ -372,13 +397,18 @@ export const useAllVectorsFor3DPaginated = (selectedNamespace?: string) => {
         }
 
         ragLogger.performance.timing(`fetch_vectors_with_cursor`, startTime);
-        logger.debug(`✅ Fetched ${vectors.length} complete vectors from ${namespace}`);
+        logger.debug(
+          `✅ Fetched ${vectors.length} complete vectors from ${namespace}`
+        );
 
         // 6. Determinar si hay más páginas
         const nextCursor = listData.pagination?.next;
         const hasMoreInNamespace = !!nextCursor;
-        const nextNamespaceIndex = !hasMoreInNamespace ? currentNamespaceIndex + 1 : currentNamespaceIndex;
-        const hasMore = hasMoreInNamespace || nextNamespaceIndex < namespaces.length;
+        const nextNamespaceIndex = !hasMoreInNamespace
+          ? currentNamespaceIndex + 1
+          : currentNamespaceIndex;
+        const hasMore =
+          hasMoreInNamespace || nextNamespaceIndex < namespaces.length;
 
         return {
           vectors,
@@ -387,7 +417,7 @@ export const useAllVectorsFor3DPaginated = (selectedNamespace?: string) => {
           nextCursor: hasMoreInNamespace ? nextCursor : null,
           nextNamespaceIndex,
           namespace,
-          namespacesCount: namespaces.length
+          namespacesCount: namespaces.length,
         };
       } catch (error) {
         logger.error(`❌ Error fetching vectors`, error);
@@ -398,12 +428,15 @@ export const useAllVectorsFor3DPaginated = (selectedNamespace?: string) => {
       if (lastPage.hasMore) {
         return {
           cursor: lastPage.nextCursor,
-          namespaceIndex: lastPage.nextNamespaceIndex
+          namespaceIndex: lastPage.nextNamespaceIndex,
         };
       }
       return undefined;
     },
-    initialPageParam: { cursor: null, namespaceIndex: 0 } as { cursor: string | null, namespaceIndex: number },
+    initialPageParam: { cursor: null, namespaceIndex: 0 } as {
+      cursor: string | null;
+      namespaceIndex: number;
+    },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     retry: 2,

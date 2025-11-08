@@ -62,10 +62,10 @@ export class ClientRetrieverService {
   // --- Fetchear vectores específicos ---
   static async fetchVectors(namespace: string, ids: string[]) {
     // Construir query string manualmente: ids=id1&ids=id2&ids=id3
-    const idsQuery = ids.map(id => `ids=${encodeURIComponent(id)}`).join('&');
+    const idsQuery = ids.map((id) => `ids=${encodeURIComponent(id)}`).join("&");
     const namespaceQuery = `namespace=${encodeURIComponent(namespace)}`;
     const queryString = `${idsQuery}&${namespaceQuery}`;
-    
+
     return this.client.requestBuilder({
       method: "GET",
       path: `${this.host}/vectors/fetch?${queryString}`,
