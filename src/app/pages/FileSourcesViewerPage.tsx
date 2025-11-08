@@ -1,8 +1,5 @@
+import FileContentViewer from "../modules/sources/FileSourcesViewer";
 
+const FileSourcesViewerPage = () => <FileContentViewer content={[]} />;
 
-import React from 'react'
-import FileContentViewer from '../modules/sources/FileSourcesViewer'
-
-const FileSourcesViewerPage = () => <FileContentViewer />
-
-export default FileSourcesViewerPage
+export default FileSourcesViewerPage;

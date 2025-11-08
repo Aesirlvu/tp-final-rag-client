@@ -10,6 +10,8 @@ import {
   FileSourcesViewerPage,
   SourcesViewerLayout,
   VisualizerLayout,
+  SemanticSearchPage,
+  Dashboard3DPage,
 } from "../pages";
 
 export interface IRoute {
@@ -86,6 +88,16 @@ const AppRoutes: IRoute[] = [
         Component: FileSourcesViewerPage,
       },
     ],
+  },
+  {
+    path: "/semantic-search",
+    Component: SemanticSearchPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/dashboard-3d",
+    Component: Dashboard3DPage,
+    requiresAuth: true,
   },
 ];
 

@@ -1,6 +1,6 @@
 
 
-import DimensionsVisualizer from '../components/landing/DimensionsVisualizer'
+import DimensionsVisualizer from '../modules/sources/DimensionsVisualizer'
 
 const DimensionsVisualizerPage = () => <DimensionsVisualizer />
 

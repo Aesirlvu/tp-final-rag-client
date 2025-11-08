@@ -12,7 +12,9 @@ export default function Layout({
       <AppSidebar />
       <SidebarInset className="flex flex-col">
         <Header />
-        <main className="flex-1 overflow-hidden">{children as React.ReactNode}</main>
+        <main className="flex-1 overflow-hidden">
+          {children as React.ReactNode}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

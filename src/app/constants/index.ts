@@ -22,4 +22,10 @@ export const TIME_UNITS = {
   days: DAYS,
 };
 
-export const BASE_API_URL = "http://localhost:3000/api";
+export const BASE_API_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+
+export const PINECONE_API_URL =
+  "https://medical-rag-index-caubl4j.svc.aped-4627-b74a.pinecone.io";
+
+export const JINA_API_URL = "https://api.jina.ai";
